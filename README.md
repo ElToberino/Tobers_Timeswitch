@@ -2,7 +2,7 @@
 Tobers Timeswitch is a versatile time switch for ESP8266 devices, based on the great time switches by Jens Fleischer (www.fipsok.de).
 
 Beside the "classical" timeswitch functions widely configurable for every single day, it offers a lot of different sunrise/sunset and twilight modes and a countdown timer.<br>
-Using the inbuilt Master/Client function you can programm multiple devices "with one click".<br>
+Using the inbuilt Master/Client function you can programm multiple devices "with one click" which can be very helpful if you have lot of devices running.<br>
 Tobers Timeswitch is easily and extensively configurable via a comfortable web interface.<br>
 
 It can be run on any device using an ESP8266/ESP8285.<br>
