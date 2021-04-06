@@ -8,15 +8,13 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 
 ## Webinterface and Functions
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-<br><br><br>
 **Main Time Switch Site**<br>
 * set switching times and active days
 * enable/disable single times or activate/deactivate all switching times
 * times coloured brown below a sun symbol can't be changed manually because they have been assigned to the twilight functions<br>
-<br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-<br><br><br>
 **Advanced Settings Site**<br>
 * assign twilight or sunrise/sunset times to certain switching times
 * choose between sunrise/sunset or twilight as reference for switching times<br>
@@ -24,7 +22,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
   <br>
 * enable/disable countdown timer<br>
 (while countdown timer is active all switching times are deactivated)<br>
-<br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
 **Configuration Site**<br>
@@ -44,29 +42,26 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 
 ## Master Functions
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-<br><br><br>
 **Client Administration**<br>
 * add or delete IP adresses of clients <br>
 * IP adress of master device mist also be added
 * list of clients is sent to all clients<br>
   -> master functions can also be called on client devices<br><br>
 * set number of switching times for master and all client devices<br>
-<br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-<br><br><br>
 **Cockpit**<br>
 * overview of all clients to check connection and state
 * switch on/off certain devices
 * activate/deactivate all switching times of certain devives
 * visit certain devices by clicking the IP adress<br>
-<br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"><img src="showcase/dummy.jpg" align="left" height="400"> <br>
-<br><br><br>
 **Master Main Switch and Master Advanced Site**<br>
 * Configuration of switching times and advanced settings for **all devices**<br>
-<br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 **For complete and detailed information about the setup of the device and the steps to be taken before compiling please visit the article I wrote at hackster.io. You will also find some more pictures and a video there.**
 <br><br>
