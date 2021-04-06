@@ -8,14 +8,14 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 
 ## Webinterface and Functions
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-**Main Time Switch Site**<br>
+**Main Time Switch**<br>
 * set switching times and active days
 * enable/disable single times or activate/deactivate all switching times
 * times coloured brown below a sun symbol can't be changed manually because they have been assigned to the twilight functions<br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-**Advanced Settings Site**<br>
+**Advanced Functions**<br>
 * assign twilight or sunrise/sunset times to certain switching times
 * choose between sunrise/sunset or twilight as reference for switching times<br>
   (twilight type can be set via config site)<br>
@@ -25,7 +25,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 <br><br><br><br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-**Configuration Site**<br>
+**Configuration**<br>
 * set name of time switch
 * set number of switching times
 * set NTP server
@@ -59,7 +59,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 <br><br><br><br><br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"><img src="showcase/dummy.jpg" align="left" height="400"> <br>
-**Master Main Switch and Master Advanced Site**<br>
+**Master Main Switch and Master Advanced Functions**<br>
 * Configuration of switching times and advanced settings for **all devices**<br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br>
 
@@ -86,10 +86,10 @@ As clearly stated in the license * *the code is published "without any warranty;
 <br>
 **General information about smart devices, smart plugs etc.**<br>
 A lot of smart devices are used for switching loads on and off. It is very important (!) to keep within the specifications of the device and not to exceed the maximum load declared on the devices. (Of course, this should be self-evident and a matter of common sense (or as we say: "Hausverstand"). Having read through a lot of forums and hearing complaints about melt-down or burnt-off devices that people have used to switch large boilers etc., I feel myself forced to give this hint).
-I myself wouldn't even think about reaching the maximum load - high loads should always be switched by contactors (German: "Schütz").<br>
+I myself wouldn't even think about reaching the maximum load - high loads should always be switched by *contactors* (German: "*Schütz*").<br>
 <br>
-Loads including a * *"Switching power supply"* (most of the modern devices and gadgets have inbuilt SWPs) can also cause problems, because - in the moment of switching on - many SWPs can pull very high inrush currents, exceeding the maxium rated load of the device by multiple times. Of course, only for a short time of some ms, but the resulting arc between the switching contacts of the relay can weld them together and destroy your switching device. This can be prevented by using contactors or inrush current limiters.
-Many people are not aware, that even a couple of simlutaniously switched on "retrofit LED bulbs" can cause this damage, though the rated current of these lamps is very low. But each of these has a small built-in SWP and this can be to much for the relay contacts. You can often read complaints like "My smart device has been damaged after some weeks and can't be switched off any more" - but mostly this isn't a failure of the smart device but of the wrong or not properly calculated load attached to it. <br>
+Loads including a *"Switching Power Supply"* (most of the modern devices and gadgets have inbuilt SWPs) can also cause problems, because - in the moment of switching on - many SWPs can pull very high inrush currents, exceeding the maxium rated load of the device by multiple times. Of course, only for a short time of some ms, but the resulting arc between the switching contacts of the relay can weld them together and destroy your switching device. This can be prevented by using *contactors* or *inrush current limiters*.
+Many people are not aware, that even a couple of simlutaniously switched on "retrofit LED bulbs" can cause this damage, though the rated current of these lamps is very low. But each of these has a small built-in SWP and, in total, this can be too much load for the relay contacts. You can often read complaints like "My smart device has been damaged after some weeks and can't be switched off any more" - but mostly this isn't a failure of the smart device but of the wrong or not properly calculated load attached to it. <br>
 <br>
 
 ## Credits
