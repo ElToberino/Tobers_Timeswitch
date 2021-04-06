@@ -27,7 +27,6 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 <br><br><br><br><br><br><br><br>
 
 <img src="showcase/dummy.jpg" align="left" height="400"> <br>
-<br>
 **Configuration Site**<br>
 * set name of time switch
 * set number of switching times
