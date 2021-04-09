@@ -7,14 +7,14 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 <br>
 
 ## Webinterface and Functions
-<img src="showcase/dummy.jpg" align="left" height="400"> <br>
+<img src="showcase/index.jpg" align="left" height="400"> <br>
 **Main Time Switch**<br>
 * set switching times and active days
 * enable/disable single times or activate/deactivate all switching times
 * times coloured brown below a sun symbol can't be changed manually because they have been assigned to the twilight functions<br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-<img src="showcase/dummy.jpg" align="left" height="400"> <br>
+<img src="showcase/advanced.jpg" align="left" height="500"> <br>
 **Advanced Functions**<br>
 * assign twilight or sunrise/sunset times to certain switching times
 * choose between sunrise/sunset or twilight as reference for switching times<br>
@@ -24,7 +24,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 (while countdown timer is active all switching times are deactivated)<br>
 <br><br><br><br><br><br><br><br><br><br><br>
 
-<img src="showcase/dummy.jpg" align="left" height="400"> <br>
+<img src="showcase/config.jpg" align="left" height="550"> <br>
 **Configuration**<br>
 * set name of time switch
 * set number of switching times
@@ -41,7 +41,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 <br><br><br><br>
 
 ## Master Functions
-<img src="showcase/dummy.jpg" align="left" height="400"> <br>
+<img src="showcase/master-client-admin.jpg" align="left" height="400"> <br>
 **Client Administration**<br>
 * add or delete IP adresses of clients <br>
 * IP adress of master device mist also be added
@@ -50,7 +50,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * set number of switching times for master and all client devices<br>
 <br><br><br><br><br><br><br><br><br><br>
 
-<img src="showcase/dummy.jpg" align="left" height="400"> <br>
+<img src="showcase/master-cockpit.jpg" align="left" height="300"> <br>
 **Cockpit**<br>
 * overview of all clients to check connection and state
 * switch on/off certain devices
@@ -58,7 +58,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * visit certain devices by clicking the IP adress<br>
 <br><br><br><br><br><br><br><br><br><br><br><br>
 
-<img src="showcase/dummy.jpg" align="left" height="400"><img src="showcase/dummy.jpg" align="left" height="400"> <br>
+<img src="showcase/master-main-switch.jpg" align="left" height="400"><img src="showcase/master-advanced.jpg" align="left" height="400"> <br>
 **Master Main Switch and Master Advanced Functions**<br>
 * Configuration of switching times and advanced settings for **all devices**<br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br>
