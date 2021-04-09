@@ -22,9 +22,9 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
   <br>
 * enable/disable countdown timer<br>
 (while countdown timer is active all switching times are deactivated)<br>
-<br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-<img src="showcase/config.jpg" align="left" height="550"> <br>
+<img src="showcase/config.jpg" align="left" height="600"> <br>
 **Configuration**<br>
 * set name of time switch
 * set number of switching times
@@ -38,7 +38,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * access to Over the Air Update (OTA) wia web interface
 * access to file administration
 * acces to Log-Site logging latest ten NTP-Server-Calls<br>
-<br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br>
 
 ## Master Functions
 <img src="showcase/master-client-admin.jpg" align="left" height="400"> <br>
@@ -50,7 +50,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * set number of switching times for master and all client devices<br>
 <br><br><br><br><br><br><br><br><br><br>
 
-<img src="showcase/master-cockpit.jpg" align="left" height="300"> <br>
+<img src="showcase/master-cockpit.jpg" align="left" height="400"> <br>
 **Cockpit**<br>
 * overview of all clients to check connection and state
 * switch on/off certain devices
