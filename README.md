@@ -17,7 +17,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 
 **Advanced Functions**<br>
 * assign twilight or sunrise/sunset times to certain switching times
-* choose between sunrise/sunset or twilight as reference for switching times<br>
+* choose between sunrise/sunset or twilight as reference for switching times
   (twilight type can be set via config site)<br>
 * enable/disable countdown timer<br>
 (while countdown timer is active all switching times are deactivated)<br>
@@ -33,7 +33,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * restart device
 * erase WiFi data
 * access to Master Function controlling multiple time switches
-* access to Over the Air Update (OTA) wia web interface
+* access to Over the Air Update (OTA) via web interface
 * access to file administration
 * acces to Log-Site logging latest ten NTP-Server-Calls<br>
 <br><br>
@@ -78,7 +78,7 @@ ESP8266 or ESP8266 based device with at least 1MB flash memory <br>
 
 ## Important Notes<br>
 This code has been made for ESP8266. There is a large number of smart devices availabe basing on these chips - some of them are easily flashable with a custom firmware. Many tips and tutorials can be found in the web explainig how this flashing process can be made. I don't give any advise concerning this because it can be (potentially) very dangerous: Most of these devices are working with mains voltage - so modifying these devices can become a life threatening thing, if you don't have the expertise for electrical works!
-As clearly stated in the license * *the code is published "without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose."*<br>
+As clearly stated in the license *the code is published "without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose."*<br>
 <br>
 **General information about smart devices, smart plugs etc.**<br>
 A lot of smart devices are used for switching loads on and off. It is very important (!) to keep within the specifications of the device and not to exceed the maximum load declared on the devices. (Of course, this should be self-evident and a matter of common sense (or as we say: "Hausverstand"). Having read through a lot of forums and hearing complaints about melt-down or burnt-off devices that people have used to switch large boilers etc., I feel myself forced to give this hint).
