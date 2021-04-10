@@ -7,14 +7,14 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 <br>
 
 ## Webinterface and Functions
-<img src="showcase/index.jpg" align="left" height="480"> <br>
+<img src="showcase/overview.jpg" align="left"> <br>
+
 **Main Time Switch**<br>
 * set switching times and active days
 * enable/disable single times or activate/deactivate all switching times
 * times coloured brown below a sun symbol can't be changed manually because they have been assigned to the twilight functions<br>
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br>
 
-<img src="showcase/advanced.jpg" align="left" height="570"> <br>
 **Advanced Functions**<br>
 * assign twilight or sunrise/sunset times to certain switching times
 * choose between sunrise/sunset or twilight as reference for switching times<br>
@@ -22,9 +22,8 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
   <br>
 * enable/disable countdown timer<br>
 (while countdown timer is active all switching times are deactivated)<br>
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br>
 
-<img src="showcase/config.jpg" align="left" height="660"> <br>
 **Configuration**<br>
 * set name of time switch
 * set number of switching times
@@ -38,7 +37,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * access to Over the Air Update (OTA) wia web interface
 * access to file administration
 * acces to Log-Site logging latest ten NTP-Server-Calls<br>
-<br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br>
 
 ## Master Functions
 <img src="showcase/master-client-admin.jpg" align="left" height="440"> <br>
