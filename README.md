@@ -45,7 +45,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * add or delete IP adresses of clients <br>
 * IP adress of master device mist also be added
 * list of clients is sent to all clients<br>
-  -> master functions can also be called on client devices<br><br>
+  -> master functions can also be called on client devices<br>
 * set number of switching times for master and all client devices<br>
 <br>
 
