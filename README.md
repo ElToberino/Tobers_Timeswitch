@@ -19,7 +19,6 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * assign twilight or sunrise/sunset times to certain switching times
 * choose between sunrise/sunset or twilight as reference for switching times<br>
   (twilight type can be set via config site)<br>
-  <br>
 * enable/disable countdown timer<br>
 (while countdown timer is active all switching times are deactivated)<br>
 <br>
