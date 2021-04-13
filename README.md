@@ -91,5 +91,5 @@ Many people are not aware, that even a couple of simlutaniously switched on "ret
 This project wouldn't have been possible without the work of many others:
 * Special thanks to Jens Fleischer - the timeswitches presented on his site are the nucleus around which I built my own version of a timeswitch.<br>
 His fantastic website www.fipsok.de is one of the best places in the web to find inspiration and help concerning ESP8266 and ESP32 projects. Furthermore, the projects on his site enabled me to learn a lot about Javascript functions, which are an essential part of this project.
-* HTML background pattern graphic by Henry Daubrez, taken from http://thepatternlibrary.com/
+* HTML background pattern graphic by Henry Daubrez, taken from [thepatternlibrary.com](http://thepatternlibrary.com/).
 * Thanks to the many, many other programmers and enthusiasts in the web whose work and helpfulness enabled me to realize such a project.
