@@ -52,7 +52,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * overview of all clients to check connection and state
 * switch on/off certain devices
 * activate/deactivate all switching times of certain devices
-* visit certain devices by clicking the IP adress<br>
+* visit certain devices by clicking the IP address<br>
 <br>
 
 **Master Main Switch and Master Advanced Functions**<br>
