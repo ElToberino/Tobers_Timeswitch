@@ -77,7 +77,7 @@ ESP8266 or ESP8266 based device with at least 1MB flash memory <br>
 <br>
 
 ## Important Notes<br>
-This code has been made for ESP8266. There is a large number of smart devices availabe basing on this chip - some of them are easily flashable with a custom firmware. Many tips and tutorials can be found in the web explainig how this flashing process can be made. I don't give any advise concerning this because it can be (potentially) very dangerous: Most of these devices are working with mains voltage - so modifying these devices can become a life threatening thing, if you don't have the expertise for electrical works!
+This code has been made for ESP8266. There is a large number of smart devices available basing on this chip - some of them are easily flashable with a custom firmware. Many tips and tutorials can be found in the web explainig how this flashing process can be made. I don't give any advise concerning this because it can be (potentially) very dangerous: Most of these devices are working with mains voltage - so modifying these devices can become a life threatening thing, if you don't have the expertise for electrical works!
 As clearly stated in the license *the code is published "without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose."*<br>
 <br>
 **General information about smart devices, smart plugs etc.**<br>
