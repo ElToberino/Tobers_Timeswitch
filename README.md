@@ -1,7 +1,7 @@
 # Tobers Timeswitch for ESP8266
 Tobers Timeswitch is a versatile and multifunctional timeswitch for ESP8266 devices, based on the great timeswitches on [fipsok.de](https://www.fipsok.de) (Jens Fleischer).
 
-Beside the "classic" timeswitch functions widely configurable for every single day, it offers a lot of different sunrise/sunset and twilight modes. A countdown timer is also available.<br>
+Besides the "classic" timeswitch functions widely configurable for every single day, it offers a lot of different sunrise/sunset and twilight modes. A countdown timer is also available.<br>
 Using the inbuilt Master/Client function you can program multiple devices "by one click". This can be very helpful if you have lot of devices running that shall all use the same scheme of switching times.
 Tobers Timeswitch is easily and extensively configurable via a comfortable web interface.<br>
 <br>
@@ -33,7 +33,8 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 * restart device
 * erase WiFi credentials
 * access to Master Function controlling multiple time switches
-* access to Over the Air Update (OTA) via web interface
+* access to Over the Air Update (OTA) via web interface<br>
+Note: On devices with only 1MB flash memory OTA can only be made uploading "minimal_OTA" as an intermediate step.
 * access to file administration
 * acces to Log-Site logging latest ten NTP-Server-Calls<br>
 <br><br>
@@ -64,7 +65,7 @@ Tobers Timeswitch is easily and extensively configurable via a comfortable web i
 
 ## Requirements
 * *Hardware*<br>
-ESP8266 or ESP8266 based device with at least 1MB flash memory <br>
+ESP8266 or ESP8266/ESP8285 based device with at least 1MB flash memory <br>
 
 * *Arduino IDE and the following libraries:*<br>
 [My fork of WifiManager library (development branch) by tzapu/tablatronix](https://github.com/ElToberino/WiFiManager_for_Multidisplay)<br>
