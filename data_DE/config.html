@@ -1,0 +1,430 @@
+﻿<!-- Tobers Timeswitch by ElToberino (c) 2021 for further information see: https://github.com/ElToberino/Tobers_Timeswitch -->
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-control" content="no-cache">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title></title>
+	<STYLE>
+.configknopf {
+width:10em;
+}
+
+.configknopfInvisible {
+display:inline;
+width:10em;
+text-align:left;
+background-color:#f6b54d;
+border:0.1em solid #f6b54d;
+margin-left:0.2em;
+padding-top:0.4em;
+padding-bottom:0.4em;
+padding-left:4.7em;
+font-size:90%;
+color:#af601a;
+}
+	
+.switchConfig {
+  position: relative;
+  display: inline-block;
+  width: 3.5em;
+  height: 1.8em;
+  margin:0.1em 0.5em 0.25em 0.3em;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+  background-color: red;
+  border:0.1em solid #af601a;
+  transition: .4s;
+  border-radius: 3em;
+}
+
+.slider:before {
+  position: absolute;
+  content:"";
+  height: 1.3em;
+  width: 1.3em;
+  background-color: white;
+  margin-left:0.1em;
+  left: 0.15em;
+  bottom: 0.15em;
+  transition: .4s;
+  border-radius: 0.65em;
+}
+
+input:checked + .slider {
+  background-color: green;
+}
+
+input:checked + .slider:before {
+  transform: translateX(1.5em);
+}
+
+.radi {margin; padding:0; vertical-align:middle;}
+.radl {margin:0; padding:0.2em 0 0 0; display:inline-block; vertical-align:middle;}
+</STYLE>
+<SCRIPT>
+        var maxSize;
+		
+        window.addEventListener('load', () => {
+		
+		var myobject = { 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "10", 
+			11: "11", 12: "12", 13: "13", 14: "14", 15: "15", 16: "16", 17: "17", 18: "18" };
+		var select = document.getElementById("MyAstro");
+		for(index in myobject) { select.options[select.options.length] = new Option(myobject[index], index);}
+		
+		once();
+		 })
+		
+		function once() {
+	        fetch('/showConfig')
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+			    document.getElementById("eins").value = data.Name;
+				document.getElementById("zwo").value = data.CNT;
+				maxSize = data.MaxS;
+				document.getElementById("zwo").max = maxSize;
+				document.getElementById("drei").value = data.NTP;
+				document.getElementById("vier").value = data.REF;
+			    var titel = data.Name + " - Config";
+			    document.title = titel;
+				document.getElementById("device").innerHTML = titel;
+				document.getElementById("Time").innerHTML = data.Timestamp;
+				document.getElementById("SSID").innerHTML = data.SSID;
+				document.getElementById("IP").innerHTML = data.IP;
+				document.getElementById("user").value = data.USER;
+				document.getElementById("password").value = data.PW;
+				var LoT = data.Long;
+				document.getElementById("longi").value = parseFloat(LoT);
+				var LaT = data.Lat;
+				document.getElementById("lati").value = parseFloat(LaT);
+				var twili =data.TWI;
+				document.getElementById("MyAstro").value = twili;
+				setRadio(twili);
+				if (data.EnaAuth == 0) {                                             //sets checkboxes according to received values
+					document.getElementById("CheckAuth").checked = "";
+					}
+				else {
+				    document.getElementById("CheckAuth").checked = "checked";
+					}
+				document.getElementById("EnableAuth").value = data.EnaAuth;
+				console.log(data)
+				})
+			.catch(err => {
+                document.getElementById("showbox").innerHTML = "Keine Verbindung zur Schaltuhr";
+			    document.getElementById("showbox").className = "configred";
+				})
+				}
+				
+		function trick(id, max, form, info){
+			var versuch = document.getElementById(id).value;
+			toberREGEX = /[\}\{\\\"]/;                                 //siehe Simulator auf https://www.regextester.com/97777
+			if (versuch.length <= Number(max)) {
+				var result = toberREGEX.test(versuch);
+				if (result == true) {
+					document.getElementById("showbox").innerHTML = "Falsche Zeichen! Nicht erlaubt sind: }  {  \\  \" <br>";
+					document.getElementById("showbox").className = "configred";
+					}
+				else { 
+					SendeFunction(form, info);
+				}
+			} else {
+			document.getElementById("showbox").innerHTML = "Es sind maximal " + max + " Zeichen erlaubt!";
+			document.getElementById("showbox").className = "configred";
+			}
+		}
+				
+		function Auth(){
+			if (document.getElementById("CheckAuth").checked == true) { document.getElementById("EnableAuth").value = 1;}    //transforms "checked" attributes to values in hidden input
+			else {document.getElementById("EnableAuth").value = 0;}
+			
+			var user = document.getElementById("user").value;
+			var pw = document.getElementById("password").value;
+			toberREGEX = /[\}\{\\\"]/;                                  //siehe Simulator auf https://www.regextester.com/97777
+			if (user.length < 21 && pw.length < 21) {
+				var UserResult = toberREGEX.test(user);
+				var PwResult = toberREGEX.test(pw);
+				if (UserResult == true && PwResult == true) {
+					document.getElementById("showbox").innerHTML = "Falsche Zeichen! Nicht erlaubt sind: }  {  \\  \" <br>";
+					document.getElementById("showbox").className = "configred";
+					}
+				else { 
+					SendeFunction("formuAuth", "Authentifizierung aktualisiert!");
+				}
+			} else {
+			document.getElementById("showbox").innerHTML = "Es sind maximal 20 Zeichen erlaubt!";
+			document.getElementById("showbox").className = "configred";
+			}
+		}
+		
+		function Coord(){
+			var longi = document.getElementById("longi").value;
+			var lati = document.getElementById("lati").value;
+			toberREGEX = /^[+-]?\d+(\.\d*)?/;                                  //siehe https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
+		    var Long_Result = toberREGEX.test(longi);
+			var Lat_Result = toberREGEX.test(lati);
+				if (Long_Result == false ||  Lat_Result == false) {
+					document.getElementById("showbox").innerHTML = "Falsche Zeichen! Nur Ziffern und Dezimalpunkt erlaubt";
+					document.getElementById("showbox").className = "configred";
+					}
+				else { 
+					SendeFunction("formuGPS", "Astro-Daten aktualisiert!");
+				}	
+		}
+				
+		function trickNum(id, form, min, max, info){
+			var versuch = Number(document.getElementById(id).value);
+			if (versuch >= min && versuch <= max) {
+				SendeFunction(form, info);
+				}
+			else { 
+				document.getElementById("showbox").innerHTML = "Eingabewert muss zwischen " + min + " und " + max + " liegen";
+				document.getElementById("showbox").className = "configred";
+		   }
+		}
+			
+		function SendeFunction(form, info) {
+		    var formData = new FormData(document.getElementById(form));			
+			var url = document.getElementById(form).action;
+			fetch(url, {
+				method: 'post',
+				body: formData
+					})
+					.then(resp => {
+						if (resp.ok) {
+							document.getElementById("showbox").innerHTML = info;
+							document.getElementById("showbox").className = "configgreen";
+							setTimeout (function(){
+								document.getElementById("showbox").innerHTML = "&nbsp;";
+								document.getElementById("showbox").className = "configinvisible";
+							},3500);
+							setTimeout(once,200);
+						}
+					})
+					.catch(err => {
+						document.getElementById("showbox").innerHTML = "Keine Verbindung zur Schaltuhr";
+						document.getElementById("showbox").className = "configred";
+					});					
+		}
+			
+		
+		function confirmSender(text, form, info) {
+			 var check= confirm(text);
+			 if (check == true) {
+				document.getElementById(form).submit();
+				setTimeout( function() {
+					document.getElementById("showbox").innerHTML = info;
+					document.getElementById("showbox").className = "configgreen";
+					}, 100);
+				if (form == "formu3") {
+					setTimeout( function() {
+						document.getElementById("showbox").innerHTML = "Schaltuhr wurde neu gestartet";
+						}, 8000);		
+					once();
+				}
+			}
+		}
+							
+		function goTo(link) {
+		    window.location = link;
+			}
+		
+		function visitMaster() {
+			var checkmas = confirm('Einstellungen im Masterbereich betreffen ALLE Schaltuhren!\n\nWollen Sie wirklich fortfahren?');
+			if (checkmas == true) {
+				window.open("master-cockpit.html");
+			}
+		}
+		
+
+		function setRadio(twili){
+		if (twili=="6")document.getElementById("civil").checked = true;
+		else if (twili=="12")document.getElementById("nautic").checked = true;
+		else if (twili=="18")document.getElementById("astro").checked = true; 
+		else {
+		document.getElementById("civil").checked = false;
+		document.getElementById("nautic").checked = false;
+		document.getElementById("astro").checked = false;
+		}
+		}
+		
+		function setSel(radioB, twili){
+		if (radioB == true) document.getElementById("MyAstro").value = twili;
+		}
+</SCRIPT>
+</head>
+<body>
+<div>
+<div class="aussen">
+<h1><nobr>Tobers Zeitschaltuhr</nobr></h1>
+<h2 style="margin-bottom:-1.4em;" id="device">&nbsp;</h2><br>
+<p>
+<div id="showbox" class="configinvisible">&nbsp;</div>
+<div class="showconf"><span class="innershowconf">In Betrieb seit:</span><span id="Time">0</span></div>
+<div class="showconf"><span class="innershowconf">Netzwerk:</span><span id="SSID">0</span></div>
+<div class="showconf"><span class="innershowconf">IP-Adresse:</span><span id="IP">0</span></div>
+<FORM id="formu" METHOD="POST" action="/postConf" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">
+<div class="config">
+<div style="display:inline-block;">
+<input type="button" onclick="trick('eins', '20', 'formu', 'Name gesetzt!')" class="configknopf" value="Set Name">
+</div>
+<input id="eins" class="innerproform" type="text" name="newName" pattern="[^{}\x22\\]+" maxlength="20" value="">
+</div>
+</form>
+<FORM id="formuZwo" METHOD="POST" action="/postCounts" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">
+<div class="config">
+<div style="display:inline-block;">
+<input type="button" onclick="trickNum('zwo', 'formuZwo', '1', maxSize, 'Anzahl Schaltzeiten gesetzt!')" class="configknopf" value="Set Number">
+</div>
+<input id="zwo" class="innerproform" style="width:3.5em;" type="number" name="CNT" min="1" max="" value="">
+<div style="display: inline-block; margin-left:0.2em;" class="configright">
+Schaltzeiten
+</div>
+</div>
+<input id="Timessaver" type="hidden" name="SAVER" value="1">
+</form>
+
+<FORM id="formuDrei" METHOD="POST" action="/postConf" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">
+<div class="config">
+<div style="display:inline-block;">
+<input type="button" onclick="trick('drei', '40', 'formuDrei', 'NTP-Server gesetzt!')" class="configknopf" value="Set NTP Server">
+</div>
+<input id="drei" class="innerproform" type="text" name="NTP" pattern="[^{}\x22\\]+" maxlength="40" value="">
+</div>
+</form>
+
+<FORM id="formuVier" METHOD="POST" action="/postConf" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">
+<div class="config">
+<div style="display:inline-block;">
+<input type="button" onclick="trickNum('vier', 'formuVier', '1', '240', 'Refresh Time gesetzt!')" class="configknopf" value="Set NTP Interval">
+</div>
+<input id="vier" class="innerproform" style="width:3.5em;" type="number" name="REF" min="1" max="240" value="">
+<div style="display: inline-block; margin-left:0.2em;" class="configright">
+in Minuten
+</div>
+</div>
+</form>
+
+<div class="config" style="padding-top:0.4em; padding-bottom:0.5em;">
+<FORM id="formuAuth" METHOD="POST" action="/postConf" target="hiddenFrame" style="margin:0; padding:0;">
+<input type="button" tabindex="-1" class="configknopfInvisible" value="User Name">
+<input id="user" style="display:inline-block;"class="innerproform" type="text" name="USER" pattern="[^{}\x22\\]+" maxlength="20" value=""><br>
+<input type="button" tabindex="-1" class="configknopfInvisible" value="Password">
+<input id="password" style="display: inline-block;"class="innerproform" type="text" name="PW" pattern="[^{}\x22\\]+" maxlength="20" value=""><br>
+<div style="margin-top:0.8em;">
+<div style="display:inline-block; float:left;">
+<input type="button" onclick="Auth()" class="configknopf" value="Set Auth">
+</div>
+<div style="float:left; margin:0.35em 0em 0em 0.8em;" class="configright">
+
+</div>
+<div style="float:left; margin:0.45em 0em 0em 3.8em; font-weight:normal;">
+enabled:
+</div>
+<div style="display: inline-block;">
+<label class="switchConfig" style="margin-bottom:0em;">
+<input type="checkbox" class="hiddenBox" id="CheckAuth" checked="">
+<span class="slider"></span>
+</label>
+<input id="EnableAuth" type="hidden" name="EnableAuth" value="">
+</div>
+</div>
+</form>
+</div>
+
+<div class="config" style="padding-top:0.4em; padding-bottom:0.5em;">
+<FORM id="formuGPS" METHOD="POST" action="/postConf" target="hiddenFrame" style="margin:0; padding:0;">
+<div style="float: left; margin-top:1.2em; margin-right:0.3em;">
+<input type="button" onclick="Coord()" class="configknopf" value="Set Astro">
+</div>
+<div style="display: inline-block;">
+<input id="lati" class="innerproform" style="width:7em;" type="text" name="LAT" pattern="^[+-]?\d+(\.\d*)?" maxlength="20" value="">&nbsp;LAT<br>
+<input id="longi" class="innerproform" style="width:7em;" type="text" name="LONG" pattern="^[+-]?\d+(\.\d*)?" maxlength="20" value="">&nbsp;LON<br>		
+<!--  https://stackoverflow.com/questions/19590220/html5-input-pattern-decimal-with-negative-values -->
+</div>
+<div style="margin-top:0.6em; margin-left:0.5em;">Dämmerung:</div>
+<div style="text-align:center;">
+<nobr><input class="radi" type="radio" id="civil" name="TWI_alt" value="6" onchange="setSel(this.checked, this.value)"><label class="radl">bürgerlich</label>
+<input class="radi" type="radio" id="nautic" name="TWI_alt" value="12" onchange="setSel(this.checked, this.value)"><label class="radl">nautisch</label>
+<input class="radi" type="radio" id="astro" name="TWI_alt" value="18" onchange="setSel(this.checked, this.value)"><label class="radl">astronom.</label>
+<select id="MyAstro" type="text" name="TWI" value="" class="innerproform" style="width:3em; padding:0;" onchange="setRadio(this.value)"></select></nobr>
+</div>
+</form>
+</div>
+
+<div class="config">
+<div style="display: inline-block;">
+<FORM id="formu3" METHOD="POST" action="/reset" target="hiddenFrame" style="margin:0; padding:0;">
+<input type="button" onclick="confirmSender('Soll das Gerät wirklich neu gestartet werden?', 'formu3', 'Schaltuhr wird neu gestartet!')" class="configknopf" value="Restart Device">
+</form>
+</div>
+<div style="display: inline-block;" class="configright">
+ESP neu starten
+</div>
+</div>
+
+<div class="config">
+<div style="display: inline-block;">
+<FORM id="formu4" METHOD="POST" action="/ex" target="hiddenFrame" style="margin:0; padding:0;">
+<input type="button" onclick="confirmSender('Sollen wirklich die WiFi-Logins gelöscht werden? \n Gerät startet dann im AP-Modus.', 'formu4', 'WiFi-Daten gelöscht!<br>Schaltuhr wird als AP neu gestartet')" class="configknopf" value="Erase WiFi-Data">
+</form>
+</div>
+<div style="display: inline-block;" class="configright">
+WiFi-Login Daten löschen
+</div>
+</div>
+
+<div class="config">
+<div style="display: inline-block;">
+<FORM id="formu5" METHOD="POST" action="/null" target="hiddenFrame" style="margin:0; padding:0;">
+<input type="button" onclick="visitMaster()" class="configknopf" value="Master">
+</form>
+</div>
+<div style="display: inline-block;" class="configright">
+Alle Schaltuhren steuern
+</div>
+</div>
+
+<div class="config">
+<div style="display: inline-block;">
+<FORM id="formu6" METHOD="POST" action="/null" target="hiddenFrame" style="margin:0; padding:0;">
+<input type="button" onclick="goTo('ota.html')" class="configknopf" value="OTA">
+</form>
+</div>
+<div style="display: inline-block;" class="configright">
+Over the Air Update
+</div>
+</div>
+
+<div class="config">
+<div style="display: inline-block;">
+<FORM id="formu7" METHOD="POST" action="/null" target="hiddenFrame" style="margin:0; padding:0;">
+<input type="button" onclick="goTo('spiffs.html')" class="configknopf" value="LittleFS">
+</form>
+</div>
+<div style="display: inline-block;" class="configright">
+Datei-Verwaltung
+</div>
+</div>
+<div>
+<div class="promenu"><a class="prolink" href="index.html">Schaltuhr</a></div>
+<div class="promenu"><a class="prolink" href="advanced.html">Spezial</div>
+<div class="promenu">Config</div>
+<div class="promenu"><a class="prolink" href="log.html">Log</a></div>
+</div>
+</p>
+</div>
+</div>
+<iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+</body>
+</html>

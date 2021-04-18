@@ -1,0 +1,122 @@
+﻿<!-- Tobers Timeswitch by ElToberino (c) 2021 for further information see: https://github.com/ElToberino/Tobers_Timeswitch -->
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-control" content="no-cache">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title></title>
+	<STYLE>
+.showconf {
+	padding:0.5em 0.2em 0.5em 0.5em; 
+	color:#af601a;
+	font-weight:normal;
+}	
+	
+.innershowconf {
+	color:white;
+	font-weight:bold;
+	display:table-cell;												/* see: https://stackoverflow.com/questions/16404485/getting-inline-block-elements-height-to-fill-the-parent */
+	padding-right:1.5em;
+	padding-left:0.6em;
+	vertical-align:middle;
+}
+
+.stamp {
+display:table-cell;
+/*background-color:white;*/
+width:15em;
+}
+
+.symbol {
+	color:#af601a;
+	display:table-cell;
+	/*padding-left:0.5em;*/
+	vertical-align:middle;
+	padding-right:1em;
+}
+	</STYLE>
+  <SCRIPT>
+         var LogArray;
+		 window.addEventListener('load', () => {
+			once(1);
+		 })
+		
+		function once(startup) {
+	        fetch('/showLog')
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				LogArray = data.LOGS;
+				if (startup == 1) dom();
+				
+				var symbol;
+				
+			    var titel = data.Name + " - Time Server Log";
+				document.title = titel;
+				document.getElementById("device").innerHTML = titel;
+				
+				var refreshTime = (data.RFT * 60000);						// refreshTime in (Minutes * 60000 ms)
+				setTimeout(once, refreshTime);
+				
+				LogArray.sort();											//see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+				LogArray.reverse();
+				var twoDigit;
+				for (var i=0; i<LogArray.length; i++){ 
+					if (LogArray[i] != "") {
+						LogArray[i] = LogArray[i].substr(6,2) + "/" + LogArray[i].substr(3,3) + LogArray[i].substr(0,2) + LogArray[i].substr(8);  	//see: https://stackoverflow.com/questions/952924/javascript-chop-slice-trim-off-last-character-in-string
+						symbol = LogArray[i].substring(LogArray[i].length - 8);																		//and  https://stackoverflow.com/questions/10841868/move-n-characters-from-front-of-string-to-the-end
+						LogArray[i] = LogArray[i].substring(0, LogArray[i].length - 8);
+						document.getElementById("slot"+i).style.display = "";
+					} else {
+						document.getElementById("slot"+i).style.display = "none";
+						symbol = "";
+					}
+					document.getElementById(i).innerHTML = LogArray[i];
+					if (i<9) {
+						twoDigit = "0"+(i+1);
+					} else {
+						twoDigit = i+1;
+					}
+					document.getElementById("a"+i).innerHTML = "# " + twoDigit; 
+					document.getElementById("b"+i).innerHTML = symbol; 
+				}
+				
+				console.log(data)
+				})
+			.catch(err => {
+                document.getElementById("showbox").innerHTML = "Keine Verbindung zur Schaltuhr";
+			    document.getElementById("showbox").className = "configred";
+				})
+		}
+						
+		function dom() {
+			var buf = '<div id="showbox" class="configinvisible"></div>';
+			for (var i = 0; i < LogArray.length; i++) {
+				buf += '<div id="slot' + i + '" class="showconf"><div id="a' + i +'" class="innershowconf">Server Call:</div><div class="stamp" id="' + i + '">0</div><div class="symbol" id="b' + i + '"></div></div>';
+			}
+			document.querySelector('main').insertAdjacentHTML('beforeend', buf);
+		}
+			
+</SCRIPT>
+</head>
+<body>
+<div>
+<div class="aussen">
+<h1><nobr>Tobers Zeitschaltuhr</nobr></h1>
+<h2 style="margin-bottom:-1.4em;" id="device">&nbsp;</h2><br>
+<main>
+</main>
+<div>
+<div class="promenu"><a class="prolink" href="index.html">Schaltuhr</a></div>
+<div class="promenu"><a class="prolink" href="advanced.html">Spezial</a></div>
+<div class="promenu"><a class="prolink" href="config.html">Config</a></div>
+<div class="promenu">Log</div>
+</div>
+</div>
+</div>
+<iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+</body>
+</html>

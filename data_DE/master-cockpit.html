@@ -1,0 +1,193 @@
+<!-- Tobers Timeswitch by ElToberino (c) 2021 for further information see: https://github.com/ElToberino/Tobers_Timeswitch -->
+<!DOCTYPE HTML>
+<html lang="de">
+  <head>
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-control" content="no-cache">
+    <link rel="stylesheet" type="text/css" href="style.css">
+	<title>Master Cockpit - Übersicht über alle Uhren</title>
+    <style>
+.aussen {
+margin-left:10px;
+margin-right:10px; 
+}
+
+main {
+padding: .5em .5em .5em .5em;
+margin-bottom:1em;
+color: white;
+}
+     
+input {
+background-color: inherit;
+font-size: 2.5em;
+color: inherit;
+border: 2px solid #af601a;
+height: auto;
+font-weight: bold;
+max-width:38%;
+}
+	       
+#top {
+position:static;
+}
+
+svg {
+width: 3.1em;
+}
+
+.redalarm {
+color:white;
+background-color:red;
+}
+</style>
+
+<script>
+    var host = "";  			// IP of reference device; leave blank unless this site is located external.
+							    //  -> Example: define host = http://192.168.2.115", if this site is not hosted on a time switch device and your reference device has the IP 192.168.2.115
+	var Uhren;
+	
+	 window.addEventListener('DOMContentLoaded', () => {
+	 //window.addEventListener('load', () => {
+	 getIPs(1);
+	 setInterval(refresher, 1000);
+	 })
+
+	function dom() {
+        var buf = '';
+        for (var i = 0; i < Uhren.length; i++) {
+		 if (Uhren[i] != "0.0.0.0") {
+		  var color = "color" + i;
+		  var tog = "tog" + i;
+	      var time = "time" + i;
+	      var fix = "fix" + i;
+		  var device = "device" + i;
+		  var IP = "IP_" + i;
+		  buf += '<div class="aussen" style="display:inline-block; width:15em;">';
+		  buf += '<h1 id="' + device + '">---</h1>';
+          buf += '<h2 id="' + IP + '"><a href="http://' + Uhren[i] + '" target="_blank" style="color:white; text-decoration:none;">' + Uhren[i] + '</a></h2>';
+		  buf += '<div>';
+		  buf += '<div id="top" style="text-align:left; font-size:80%;">';
+		  buf += '<div style="float:left; margin-left:5%; margin-top:5%;">';
+		  buf += '<button id="' + tog + '" onclick="senderTog(' + i + ')" class="configknopf">xxx<br>xxx</button>';
+		  buf += '</div>';
+		  buf += '<div style="float:left; width:30%; padding-left:16%; margin-top:2%;"><svg viewBox="0 0 12 15"><polygon id="' + color + '" points="10.421,6.754 6.498,6.75 12.058,2.357 9.734,2.357 1.687,8.436 5.584,8.436 0,14.02" /></svg></div>';
+		  buf += '<div style="float:left; margin-left:5%; margin-top:5%; margin-bottom:1%;"><button id="' + fix +'" onclick="senderFix(' + i + ')" class="configknopf">xxx<br>xxx</button></div>';
+		  buf += '<div style="float:left; padding-left:15%; margin-top:5%;"><div><b>Uhrzeit</b><br><time id="' + time + '">00:00</time></div>';
+		  buf += '</div>';
+		  buf += '<div style="clear:both;"></div>';
+		  buf += '</div>';
+		  buf += '</div>';
+		  buf += '</div>';
+		  }	 
+		} 		
+        document.querySelector('main').insertAdjacentHTML('beforeend', buf);
+      }
+
+      function renew(i) {
+			var adresse = "http://" + Uhren[i] + "/timer" + `?tog`;
+			var color = "color" + i;
+			var tog = "tog" + i;
+			var time = "time" + i;
+			var fix = "fix" + i;
+			fetch(adresse).then(resp => {
+				return resp.json();
+			})
+			.then(array => {
+				document.getElementById(color).style.fill = array[0] == 0 ? 'rgba(255, 255, 255,0.4)' : ' #FF5733';
+				document.getElementById(tog).innerHTML = array[0] == 0 ? 'manuell<br>Einschalten' : 'manuell<br>Ausschalten';
+				document.getElementById(time).innerHTML = array[1];
+				document.getElementById(fix).innerHTML = array[2] == 0 ? "&#10006; Auto deaktivieren" : "&#9200; Auto aktivieren";
+			});	
+      }
+	  	  
+	  function senderTog(i) {
+	  var adresse = "http://" + Uhren[i] + "/timer?tog=tog";
+	  fetch(adresse);
+	  }
+	  	  
+	  function senderFix(i) {
+	  var adresse = "http://" + Uhren[i] + "/timer?tog=fix";
+	  fetch(adresse);
+	  }
+	  	  
+	  function getIPs(startup) {
+			var adresse = host + "/showClients";
+			fetch(adresse)
+			.then(response => {
+				return response.json()
+				})
+				.then(data => {
+				Uhren = data.IPs;
+				if (startup == 1) {
+					dom();
+				}
+				setTimeout(function() {
+					for (i=0; i< Uhren.length; i++){
+						if (Uhren[i] != "0.0.0.0") {
+							loadName(i);
+							renew(i);
+						} 
+					}
+				},200);
+				console.log(data)
+			})
+			.catch(err => {
+				document.getElementById("subline").innerHTML = "Keine Verbindung zur Schaltuhr!";
+			    document.getElementById("subline").className = "red";
+				})		
+		}
+	  	  	  
+		function loadName(position) {
+			var adresse = "http://" + Uhren[position] + "/showname";
+			var hallo = "device" + position;
+			var daten;
+			fetch(adresse)
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				daten=data.No1;
+				console.log(data)
+				}).
+				then ( function(){
+				document.getElementById(hallo).innerHTML = daten;
+				})
+			.catch(err => {
+				document.getElementById(hallo).innerHTML = '&nbsp;<span style="font-size:50%;">Keine Verbindung zum Client !</span>&nbsp;';
+			    document.getElementById(hallo).className = "redalarm";
+				})	
+		}
+				
+		function refresher() {
+		for (i=0; i< Uhren.length; i++){
+				if (Uhren[i] != "0.0.0.0") {
+					renew(i);
+				} 
+			}
+		}
+    </script>
+  </head>
+  <body>
+  <div style="text-align:center;">
+  <div class="aussen" style="margin-top:1em;">
+ <h1>Tobers Zeitschaltuhr</h1>
+ <h2>Übersicht aller Uhren</h2>
+ <div id="subline"></div>
+ </div>
+  <main>
+  </main>
+<div class="aussen" style="margin-top:1em; padding-left:0em; padding-right:0em;">
+<div class="promenu">Master<br>Cockpit</div>
+<div class="promenu"><a class="prolink" href="master-main-switch.html">Master<br>Schaltuhr</a></div>
+<div class="promenu"><a class="prolink" href="master-advanced.html">Master<br>Spezial</a></div>
+<div class="promenu"><a class="prolink" href="master-client-admin.html">Master<br>Clients</a></div>
+</div>
+    
+  </div>
+ 
+  
+  </body>
+</html>
+

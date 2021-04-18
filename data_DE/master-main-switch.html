@@ -1,0 +1,471 @@
+<!-- Tobers Timeswitch by ElToberino (c) 2021 for further information see: https://github.com/ElToberino/Tobers_Timeswitch 
+	 based on the time switches on www.fipsok.de (Jens Fleischer) -->
+<!DOCTYPE HTML>
+<html lang="de">
+  <head>
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-control" content="no-cache">
+    <link rel="stylesheet" type="text/css" href="style.css">
+	<title>Master - Hauptschalter</title>
+    <style>
+main {
+padding: .5em .5em .5em .5em;
+margin-bottom:0.5em;
+color: white;
+}
+      
+span {
+margin:0;
+padding:0;
+}
+     
+input {
+background-color: inherit;
+font-size: 2.5em;
+color: inherit;
+border: 2px solid #af601a;
+height: auto;
+font-weight: bold;
+max-width:38%;
+}
+	 
+label {
+font-size: 0.9em;
+font-weight:bold;
+font-style: italic;
+color: #af601a;
+}
+	  
+input:checked+label {
+color: white;
+}
+      
+#infobox {
+margin-bottom:0.4em;
+}
+			  
+.note {
+padding:0.2em;
+}
+
+.promenu {
+font-size:90%;
+}
+
+.configknopf {
+font-size:95%;
+}
+
+.reds {
+background-color:red;
+}
+
+.green {
+background-color:green;
+}
+
+.button:hover {
+background-color:white;
+color:#af601a;
+}
+
+.button:active {
+background-color: white;
+transform: translateY(2px);
+}
+
+.sonne {
+color:#af601a;
+}
+    </style>
+    <script>
+      var host = "";  		// IP of reference device; leave blank unless this site is located external.
+							//  -> Example: define host = http://192.168.2.115", if this site is not hosted on a time switch device and your reference device has the IP 192.168.2.115 
+	  var hostIP;
+	  var count;			// number of switching times -> configurable via config
+	  var fixed;
+      var d = document;
+	  var Uhren;
+	  var sunValue;
+	  var startupOver = 0;
+	  var fixedFlag;
+	  var timesChanged;
+	  var timesChangedflag;
+	  
+      d.addEventListener('DOMContentLoaded', () => {
+		getIPs();
+        getCounts();
+		 })
+	   
+      function dom() {
+        var buf = '';
+        for (var i = 0; i < count; i++) {
+			buf += `<div id="ak${i}"><div style="font-weight:bold; text-align:center; padding-left:1.8em; margin-bottom:0.5em;"><span id="showOn_${i}">&#9728;&#65039;</span><span style="margin-left:1.2em; margin-right:1.2em">Schaltzeit No. ${i+1}</span><span id="showOff_${i}">&#9728;&#65039;</span></div><div class="switch" name="bu${i}"></div><input type="time" id="sz${i * 2}" class="switchtime" value=""><span style="padding:0.6em;">bis</span><input type="time" id="sz${i * 2 + 1}" class="switchtime" value=""></div><span id="t${i}">`;		
+			["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].forEach(v => {
+				buf += `<input type="checkbox" name='c${i}' style="margin-bottom:0.4em; margin-left:0.2em; margin-right:0em;"><label> ${v} </label>`;
+				});
+			buf += "</span>";
+			buf += `<div class="slot"></div>`;
+		}
+        buf += `<div id="bottom"><div id="infobox"></div><button class="configknopf" style="margin-bottom:0.8em;" id="bu">Zeiten Speichern</button><br><button class="configknopf green button" id="fixon" onclick="clicker('go')">Alle Zeiten aktivieren</button><button class="configknopf reds button" style="margin-left:1em;" id="fixoff" onclick="clicker('stop')">Alle Zeiten deaktivieren</button>`;
+		buf += '</div>';
+        d.querySelector('main').insertAdjacentHTML('beforeend', buf);
+      }
+	  	  
+      function setActive() {
+        let formData = new FormData();
+        formData.append(this.parentNode.id.substr(2, 5), this.textContent == 'EIN' ? '0' : '1');
+        send(formData,1,"Statusänderung");
+      }
+	  	  
+      function send(arg, allDevices, processMSG) {
+		var referenz = host + "/timer";
+		var box = d.getElementById("infobox");
+		fetch(referenz, {									// holt und sendet Daten -> Referenz Uhr
+          method: 'post',
+          body: arg
+        }).then(resp => {
+			if (resp.ok) {
+				if (arg && arg.has('sTime')) {
+				timesChangedflag = !timesChangedflag;
+				}
+			}
+			return resp.json();
+			}).then(array => {
+				if (array.length > count) {
+					array.forEach((v, i) => {
+						if (i < count * 2) d.getElementById(`sz${i}`).value = v;
+						if (i == count * 2) getActive(v);
+						if (i > count * 2) {
+							let el = d.getElementsByName(`c${i - count * 2 - 1}`);
+							for (let k in el) {
+								v & (1 << k) ? el[k].checked = true : el.checked = false;
+							}
+						}
+					});
+			} else {
+				getActive(array);
+			}
+			if (startupOver == 1) sunRefresher();
+			});
+		var adresse;
+		var adresseCounts;
+		var j=0;
+		var counter = 0;
+		var formData = new FormData();
+			formData.append("CNT", count);
+			formData.append("SAVER", "0");
+		if (allDevices == 1){
+			box.classList.add('note');
+			box.style.background = "orange";
+			box.innerHTML = processMSG + " läuft";
+			var ID = setInterval(function() {
+				if (Uhren[j] != "0.0.0.0" && Uhren[j] != hostIP) {
+					adresseCounts = 'http://' + Uhren[j] + '/postCounts';
+					adresse = 'http://' + Uhren[j] + '/timer';
+					fetch(adresseCounts, {										// sendet Anzahl der Schaltzeiten an die weiteren Uhren
+					method: 'post',
+					body: formData
+					})
+					.then(resp => {
+						if (resp.ok) {
+							fetch(adresse, {									// sendet Daten an die weiteren Uhren
+							method: 'post',
+							body: arg
+							})
+							.then(resp => {
+								if (resp.ok) {
+									counter++;
+									if (counter == Uhren.length) {
+										showSuccess(box, processMSG + " erfolgreich!");
+									}
+								}
+							})
+							.catch(err => {
+								box.style.background="red";
+								box.innerHTML = '<small>' + processMSG + ' nur teilweise erfolgreich!<br> Mind. eine Uhr nicht erreichbar!<br>siehe Cockpit</small>';
+							});
+						}
+					})
+					.catch(err => {
+						box.style.background="red";
+						box.innerHTML = '<small>' + processMSG + ' nur teilweise erfolgreich!<br> Mind. eine Uhr nicht erreichbar!<br>siehe Cockpit</small>';
+					});
+				} else {
+					counter++;
+					if (counter == Uhren.length) {
+						showSuccess(box, processMSG + " erfolgreich!" );
+					}
+				}
+				j++;
+				if (j==(Uhren.length)){
+						clearInterval(ID);
+				}	
+			},200);
+		}
+	  }
+	  
+	  function showSuccess(box, msg) {
+		box.classList.add('note');
+		box.style.background = "green";
+		box.innerHTML = msg;
+		setTimeout(() => {
+		box.classList.remove('note');
+		box.innerHTML = "";
+		}, 5000);
+	  }
+	        
+	  function getActive(arg) {
+        for (var i = 0; i < count; i++) {
+			if (arg.length > 0) d.querySelector(`[name=bu${i}]`).textContent = (arg[i] % 2 ? 'EIN' : 'AUS');
+			let el = d.getElementById(`ak${i}`).classList;
+			fixed == 0 ? arg[i] % 2 ? el.remove("none") : el.add("none") : el.add("none");;
+			el = d.getElementById(`t${i}`).childNodes;
+			fixed == 0 ? el.forEach(v => { arg[i] % 2 ? v.classList.remove("none") : v.classList.add("none") }) : el.forEach(v => { v.classList.add("none") });
+        }		
+      }
+	  	  
+      function renew(startup) {
+		var adresse = host + "/timer?tog";
+        fetch(adresse).then(resp => {									// holt und sendet Daten -> Referenz Uhr
+          return resp.json();
+        }).then(array => {
+			d.getElementById('color').style.fill = array[0] == 0 ? 'rgba(255, 255, 255,0.4)' : ' #FF5733';
+			d.querySelector('time').innerHTML = array[1];
+			fixed = array[2];
+			timesChanged = array[4];
+			var currentCounts = array[5];
+			if (startup == 1) {
+				fixedFlag = array[2];
+				timesChangedflag = array[4];
+				//fixed == 1 ? getActive(0) : send();
+				if (fixed == 1) getActive(0);
+			}
+			if (fixedFlag != fixed) {									// übernimmt geänderten fixed Status
+					fixed == 1 ? getActive(0) : send();
+					fixedFlag = fixed;
+			}
+			if (timesChangedflag != timesChanged){
+				send();
+				timesChangedflag = timesChanged;
+			}
+			getActive(array[3]);
+			if (currentCounts != count) window.location = window.location.href;		// location.reload();
+        });
+      }
+	  		  
+	  function clicker(choice){
+		var adresse;
+		var j;
+		var counter = 0;
+		var box;
+		if (choice == "stop" || choice == "go"){
+			box = d.getElementById("infobox");
+		} else {
+			box = d.getElementById("infoboxTop");
+			box.style.margin = "0.5em 0.5em 0em 0.5em";
+		}
+		box.classList.add('note');
+		box.style.background = "orange";
+		box.innerHTML = "Anforderung wird gesendet";
+		for (j = 0; j < Uhren.length; j++){
+		    if (Uhren[j] != "0.0.0.0") {
+				adresse = 'http://' + Uhren[j] + '/timer?tog=' + choice;
+				fetch(adresse)
+					.then(resp => {
+						if (resp.ok) {
+							counter++;
+							if (counter == Uhren.length) {
+								showSuccess(box, "Anforderung erfolgreich!");
+							}
+						}
+					})
+					.catch(err => {
+						box.style.background="red";
+						box.innerHTML = '<small>Mind. eine Uhr nicht erreichbar!<br>siehe Cockpit</small>';
+					});
+			} else {
+				counter++;
+				if (counter == Uhren.length) {
+					showSuccess(box, "Anforderung erfolgreich!");
+				}
+			}	
+		}
+	  }
+	  
+	  function setSun() {
+	   var Einzeit;
+	   var Auszeit;
+	   var showOn;
+	   var showOff;
+        for (var i = 0; i < count; i++) {
+		  var suVal = String(sunValue).charAt(i);
+		  Einzeit = d.getElementById(`sz${i*2}`)
+          Auszeit = d.getElementById(`sz${(i*2)+ 1}`)
+		  showOn = d.getElementById(`showOn_${i}`)
+		  showOff = d.getElementById(`showOff_${i}`)
+		  if (suVal=="0") {
+			Einzeit.classList.remove("sonne");
+			Auszeit.classList.remove("sonne");
+			Einzeit.disabled=false;
+		    Auszeit.disabled=false;
+			showOn.style.opacity="0";
+			showOff.style.opacity="0";
+			}
+		if (suVal=="1" || suVal=="5") {
+			Einzeit.classList.add("sonne");
+			Auszeit.classList.remove("sonne");
+			Einzeit.disabled=true;
+		    Auszeit.disabled=false;
+			showOn.style.opacity="1";
+			showOff.style.opacity="0";
+			}
+		if (suVal=="2" || suVal=="6") {
+			Einzeit.classList.remove("sonne");
+			Auszeit.classList.add("sonne");
+			Einzeit.disabled=false;
+		    Auszeit.disabled=true;
+			showOn.style.opacity="0";
+			showOff.style.opacity="1";
+			}
+		if (suVal=="3" || suVal=="4") {
+			Einzeit.classList.add("sonne");
+			Auszeit.classList.add("sonne");
+			Einzeit.disabled=true;
+		    Auszeit.disabled=true;
+			showOn.style.opacity="1";
+			showOff.style.opacity="1";
+			}
+		}
+      }
+	  
+	  function sunRefresher(){
+	  var adresse = host + "/showCounts";
+          fetch(adresse)
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				sunValue=data.No2;
+				setSun();
+				console.log(data)
+				})
+			.catch(err => {
+				d.getElementById("device").innerHTML = "Keine Verbindung zur Schaltuhr!";
+			    d.getElementById("device").className = "red";
+				})	    
+	  }
+	  	  	  
+	  function getIPs() {
+      var referenz = host + "/showClients";
+	  fetch(referenz)
+	  .then(response => {
+				return response.json()
+				})
+				.then(data => {
+				Uhren = data.IPs;
+				hostIP = data.HOST;
+			})
+			.catch(err => {
+				d.getElementById("device").innerHTML = "Keine Verbindung zur Schaltuhr!";
+			    d.getElementById("device").className = "red";
+				})		
+	  }
+	  	  
+	  function getCounts() {
+		var adresse = host + "/showCounts";
+        fetch(adresse)
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				count=data.No1;
+				sunValue=data.No2;
+				dom();
+				setSun();
+				setTimeout(function(){
+					d.querySelector('#bu').addEventListener('click', () => {
+						var check = confirm('Diese Zeiten wirklich auf ALLEN Uhren speichern? \n\nAnzahl der Schaltzeiten wird ebenfalls angepasst. \nDämmer muss über Seite Spezial gesetzt werden.');
+						if (check == true) {
+							//var box = d.getElementById("infobox");
+							//box.classList.add('note');
+							//box.style.background = "orange";
+							//box.innerHTML = "Speichervorgang läuft";
+							setTimeout(function(){ 
+								let formData = new FormData();
+								let arr = [];
+								let state = [];
+								let sun = [];
+								formData.append('sTime', Array.from(d.querySelectorAll('input[type=time]')).map(x => x.value != 0 ? x.value : "0    "));
+								for (var i = 0; i < count; i++) {
+									let x = 0;
+									d.querySelectorAll(`input[name=c${i}]`).forEach((el, i) => { if (el.checked) x = x | (1 << i) });
+									arr.push(x);
+								}
+								formData.append(`sDay`, arr);
+								for (var i = 0; i < count; i++) {
+								state[i] = d.querySelector(`[name=bu${i}]`).textContent == 'EIN' ? '1' : '0';
+								}
+								formData.append(`State`, state);
+								for (var i = 0; i < count; i++) {
+								sun[i] = String(sunValue).charAt(i);
+								}
+								formData.append(`SunValue`, sun);
+								send(formData,1, "Speichern");
+							},500);
+						}
+					});
+					for (var i = 0; i < count;) d.querySelector(`[name=bu${i++}]`).addEventListener('click', setActive); 
+					renew(1), setInterval(renew, 1000);
+					setTimeout(send,50);
+					setTimeout(function() {startupOver=1;} ,500);
+				},10);
+				console.log(data)
+				})
+			.catch(err => {
+				d.getElementById("device").innerHTML = "Keine Verbindung zur Schaltuhr!";
+			    d.getElementById("device").className = "red";
+				})		    
+		}
+  </script>
+  </head>
+  <body>
+  <div>
+  <div class="aussen">
+    <h1>Tobers Zeitschaltuhr</h1>
+	<h2>Master für alle Uhren</h2>
+	<div id="device"></div>
+	<div style="font-size:80%;">
+    <main>
+      <div id="top">
+		<div style="margin-left:5%; margin-top:0.4em; float:left;">
+		<button id="togOn" style="width:9em; height:2.3em; margin-top:0.2em;" class="configknopf green button" onclick="clicker('on')">Einschalten</button><br>
+		<button id="togOff"  style="width:9em; height:2.3em; margin-top:0.6em;" onclick="clicker('off')" class="configknopf reds button">Ausschalten</button>
+		</div>
+        <div style="margin-left:9%;float:left; color:grey; margin-top:1.2em;">
+		<svg viewBox="0 0 12 15">
+          <polygon id="color" points="10.421,6.754 6.498,6.75 12.058,2.357 9.734,2.357 1.687,8.436 5.584,8.436 0,14.02" />
+        </svg>
+		</div>
+		<div style="margin-left:11%; margin-top:1.5em;"><b>Uhrzeit</b>
+		<div style="width:100%; margin-bottom:0.3em; margin-top:0.3em;">
+		<time>00:00</time>
+		</div>
+		</div>
+		<div style="clear:both;"></div>
+		<div id="infoboxTop"></div>
+      </div>
+    </main>
+  </div>
+  <div>
+  <div class="promenu"><a class="prolink" href="master-cockpit.html">Master<br>Cockpit</a></div>
+  <div class="promenu">Master<br>Schaltuhr</div>
+  <div class="promenu"><a class="prolink" href="master-advanced.html">Master<br>Spezial</a></div>
+  <div class="promenu"><a class="prolink" href="master-client-admin.html">Master<br>Clients</a></div>
+  </div>
+  </div>
+  </div>
+   <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+  </body>
+</html>

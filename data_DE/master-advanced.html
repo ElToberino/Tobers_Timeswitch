@@ -1,0 +1,401 @@
+﻿<!-- Tobers Timeswitch by ElToberino (c) 2021 for further information see: https://github.com/ElToberino/Tobers_Timeswitch -->
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="Cache-control" content="no-cache">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Master-Spezial</title>
+	<STYLE>
+	h1 {width:10.9em;}
+	input {margin:0.3em 0.2em 0.3em 0.4em; padding:0; vertical-align:middle;}	
+	label {margin:0; padding:0.1em 0 0 0; display:inline-block; vertical-align:middle;}
+	.innerproform {margin-left:1em; margin-right:0.0em; width:9em;}
+	</STYLE>
+  <SCRIPT>
+		
+		var host = "";  		// IP of reference device; leave blank unless this site is located external.
+							    //  -> Example: define host = http://192.168.2.115", if this site is not hosted on a time switch device and your reference device has the IP 192.168.2.115
+		var hostIP;
+		var Uhren;
+		var SunValue;
+		var count;
+		var choice;
+		var counter;
+		var showbox;
+		var countdownActive = false;
+        window.addEventListener('load', () => {
+		getIPs();
+		once(1);
+		showbox = document.getElementById("showbox");
+		setInterval(showCountdown,1000);
+		 })
+		 		
+		function getIPs(startup) {
+			var adresse = host + "/showClients";
+			fetch(adresse)
+			.then(response => {
+				return response.json()
+				})
+				.then(data => {
+				Uhren = data.IPs;
+				hostIP = data.HOST;
+				console.log(data)
+			})
+			.catch(err => {
+				showbox.innerHTML = "Keine Verbindung zur Schaltuhr";
+			    showbox.className = "configred";
+				})		
+		}
+		
+		function once(startup) {
+	        fetch('/showAstro')
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				document.getElementById("rise").innerHTML = data.Rise;
+				document.getElementById("dawn").innerHTML = data.Dawn;
+				document.getElementById("set").innerHTML = data.Set;
+				document.getElementById("dusk").innerHTML = data.Dusk;
+				document.getElementById("today").innerHTML = data.Date;
+				count = data.Counts;
+				choice = data.Choice;
+				SunValue = data.Astro;
+				if (startup==1) dom();
+				setTimeout(transformVal, 100);
+				})
+			.catch(err => {
+                showbox.innerHTML = "Keine Verbindung zur Master Schaltuhr";
+			    showbox.className = "configred";
+				})
+				}
+				
+		function dom() {
+        var buf = '<FORM id="twilight" METHOD="POST" action="/postSunny" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">';
+		  buf += '<div class="config">';
+		  buf += '<div class="head_1">Schaltzeit</div>';
+		  buf += '<div class="head_2">Morgens</div>';
+		  buf += '<div class="head_2" style="margin-left:0.4em;">Abends</div></div>';
+		for (var i = 0; i < count; i++) {
+			buf += '<div class="config">';
+			buf += '<div class="spalte_1">Zeit No.' + (i+1) + '</div>' ;
+			buf += '<div class="spalte_2"><input id="dawn_on_' + i + '" type="checkbox" onclick="singlecheck('+i+',1)"><label>Ein</label><input id="dawn_off_' + i + '" type="checkbox" onclick="singlecheck('+i+',2)"><label>Aus</label></div>';
+			buf += '<div class="spalte_2"><input id="dusk_on_' + i + '" type="checkbox" onclick="singlecheck('+i+',3)"><label>Ein</label><input id="dusk_off_' + i + '" type="checkbox" onclick="singlecheck('+i+',4)"><label>Aus</label></div></div>';
+		  }
+		buf += '<div class="astroRef"><div style="width:38%; display:inline-block;">Referenz morgens:</div><div style="text-align:center; display:inline-block;"><input id="duda" type="checkbox" onclick="refch(1)"><label>Dämmerung</label>&nbsp&nbsp;<input id="suse" type="checkbox" onclick="refch(2)"><label>Aufgang</label></div></div>';
+		buf += '<div class="astroRef"><div style="width:38%; display:inline-block;">Referenz abends:</div><div style="text-align:center; display:inline-block;"><input id="dudaE" type="checkbox" onclick="refch(3)"><label>Dämmerung</label>&nbsp&nbsp;<input id="suseE" type="checkbox" onclick="refch(4)"><label>Untergang</label></div></div>';
+		buf += '<div style="text-align:center;"><input type="button" onclick="transAndSend()" class="configknopf" style="margin-top:0.5em; font-size:80%;" value="Speichern"></div>';
+		buf += '</form>';
+        document.querySelector('main').insertAdjacentHTML('beforeend', buf);
+      }
+		
+	   function singlecheck(i,b) {
+			var m1 =  document.getElementById("dawn_on_"+i);
+			var m0 = document.getElementById("dawn_off_"+i);
+			var e1 =  document.getElementById("dusk_on_"+i);
+			var e0 = document.getElementById("dusk_off_"+i);			
+			if(b=="1"){
+				if (m1.checked == true) {m0.checked = false; e1.checked = false;}
+			}
+			if (b=="2"){
+				if (m0.checked == true) {m1.checked = false; e0.checked = false;}
+			}			
+			if (b=="3"){
+				if (e1.checked == true) {e0.checked = false; m1.checked = false;}
+			}
+			if (b=="4"){
+				if (e0.checked == true) {e1.checked = false; m0.checked = false;}
+			}	
+		}
+		
+		function transformVal(){
+			for (i=0; i<count; i++){
+				var loc = String(SunValue).charAt(i);
+				var e1 =  document.getElementById("dusk_on_"+i);
+				var e0 = document.getElementById("dusk_off_"+i);
+				var m1 =  document.getElementById("dawn_on_"+i);
+				var m0 = document.getElementById("dawn_off_"+i);
+				if (loc=="0") {m1.checked=false; m0.checked=false; e1.checked=false; e0.checked=false;}
+				if (loc=="1") {m1.checked=false; m0.checked=false; e1.checked=true; e0.checked=false;}
+				if (loc=="2") {m1.checked=false; m0.checked=false; e1checked=false; e0.checked=true;}
+				if (loc=="3") {m1.checked=true; m0.checked=false; e1checked=false; e0.checked=true;}
+				if (loc=="4") {m1.checked=false; m0.checked=true; e1.checked=true; e0.checked=false;}
+				if (loc=="5") {m1.checked=true; m0.checked=false; e1.checked=false; e0.checked=false;}
+				if (loc=="6") {m1.checked=false; m0.checked=true; e1.checked=false; e0.checked=false;}
+			}
+			var suse = document.getElementById("suse");
+			var duda = document.getElementById("duda");
+			var suseE = document.getElementById("suseE");
+			var dudaE = document.getElementById("dudaE");
+			if (choice=="0") {suse.checked=true; suseE.checked=true; duda.checked=false; dudaE.checked=false;}
+			if (choice=="1") {suse.checked=true; suseE.checked=false; duda.checked=false; dudaE.checked=true;}
+			if (choice=="2") {suse.checked=false; suseE.checked=true; duda.checked=true; dudaE.checked=false;}
+			if (choice=="3") {suse.checked=false; suseE.checked=false; duda.checked=true; dudaE.checked=true;}
+		}
+				
+		function transAndSend() {
+			var temp="";
+			for (i=0; i<count; i++){
+				var e1 =  document.getElementById("dusk_on_"+i).checked;
+				var e0 = document.getElementById("dusk_off_"+i).checked;
+				var m1 =  document.getElementById("dawn_on_"+i).checked;
+				var m0 = document.getElementById("dawn_off_"+i).checked;
+				if (m1==false && m0==false && e1==false && e0==false) temp += "0";    		// all off
+				if (m1==false && m0==false && e1==true && e0==false) temp += "1";     		// evening on
+				if (m1==false && m0==false && e1==false && e0==true) temp += "2";     		// evening off
+				if (m1==true && m0==false && e1==false && e0==true) temp += "3";    		// morning on, evening off
+				if (m1==false && m0==true && e1==true && e0==false) temp += "4";    		// morning off, evening on
+				if (m1==true && m0==false && e1==false && e0==false) temp += "5";    		// morning on
+				if (m1==false && m0==true && e1==false && e0==false) temp += "6";       	// morning off
+				}
+			SunValue = temp;
+			if (document.getElementById("suse").checked && document.getElementById("suseE").checked) choice= "0";		// morning ...set - evening ...set
+			if (document.getElementById("suse").checked && document.getElementById("dudaE").checked) choice= "1";		// morning ...set - evening twilight
+			if (document.getElementById("duda").checked && document.getElementById("suseE").checked) choice= "2";		// morning twilight - evening ...set
+			if (document.getElementById("duda").checked && document.getElementById("dudaE").checked) choice= "3";		// morning twilight - evening twilight
+			SendeFunctionSun();
+			setTimeout(once,200);
+			}
+			
+		function refch(t) {
+			if (t==1) if (document.getElementById("duda").checked) document.getElementById("suse").checked=false;
+			if (t==2) if (document.getElementById("suse").checked) document.getElementById("duda").checked=false;
+			if (t==3) if (document.getElementById("dudaE").checked) document.getElementById("suseE").checked=false;
+			if (t==4) if (document.getElementById("suseE").checked) document.getElementById("dudaE").checked=false;
+			}
+		
+		function showCountdown() {
+		    var adresse = host + "/showEgg";
+			var hours;
+			var mins;
+			var secs;
+			fetch(adresse)
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				if (data.Relais == 0){
+					document.getElementById("countdown").innerHTML = "inaktiv";
+					countdownActive = false;
+				} else {
+					if (data.TimeLeft != "inaktiv") {
+						countdownActive = true;
+						secondsleft = data.TimeLeft;											// see: https://gomakethings.com/how-to-convert-seconds-to-minutes-and-hours-with-vanilla-js/
+						hours = Math.floor(secondsleft / 60 / 60);
+						if (hours < 10) hours = "0" + hours;
+						mins = Math.floor(secondsleft / 60) - (hours * 60);
+						if (mins < 10) mins = "0" + mins;
+						secs = secondsleft % 60;
+						if (secs < 10) secs = "0" + secs;
+						document.getElementById("countdown").innerHTML = hours + ":" + mins + ":" + secs;
+					} else {
+						document.getElementById("countdown").innerHTML = "inaktiv";
+					}
+				}
+				document.getElementById("color").style.fill = data.Relais == 0 ? 'rgba(255, 255, 255,0.4)' : ' #FF5733';
+				})
+			.catch(err => {
+                showbox.innerHTML = "Keine Verbindung zur Master Schaltuhr";
+			    showbox.className = "configred";
+				})
+				}
+				
+		function startEggTimer() {
+			var calculatedTime;
+			var checkH = Number(document.getElementById("hours").value);
+			var checkMin = Number(document.getElementById("minutes").value);
+			calculatedTime = (checkH*60) + checkMin;
+			if ((checkH >= 0 && checkH <= 99) && (checkMin >= 0 && checkMin <= 59)) {
+				calculatedTime = (checkH*60) + checkMin;
+				if (calculatedTime > 0) {
+					document.getElementById("EggTime").value = calculatedTime;
+					SendeFunction();
+				}
+			} else { 
+				showbox.innerHTML = "Eingabewert max 99h 59Min";
+				showbox.className = "configred";
+		   }
+		 }
+		 				
+		function SendeFunction() {
+			var minuto = Number(document.getElementById("EggTime").value);
+			var adresse;
+			var j=0;
+			var msg = "Countdown";
+			counter = -1;
+			var check = confirm('Countdown wirklich für ALLE Uhren setzen?');
+			if (check == true){
+			 postFetch(host+'/eggStart', "EggTime", minuto, "none", "none", msg);
+				var ID = setInterval(function() {
+					adresse = 'http://' + Uhren[j] + '/eggStart';
+					if (Uhren[j] != "0.0.0.0" && Uhren[j] != hostIP) {
+						postFetch(adresse, "EggTime", minuto, "none", "none", msg);
+					} else {
+						counter++;
+						if (counter == Uhren.length) showSuccess(msg);	
+					}
+					j++;
+					if (j == Uhren.length){
+					clearInterval(ID);
+					}
+					},200);
+			}
+		}
+		
+		function SendeFunctionSun() {
+			var j=0;
+			var msg = "Schaltzeiten";
+			counter = -1;
+			var adresse;
+			var adresseCounts;
+			var formData = new FormData();
+			formData.append("CNT", count);
+			formData.append("SAVER", "0");
+			var check = confirm('Schaltzeiten wirklich für ALLE Uhren setzen?');
+			if (check == true){
+			postFetch(host+'/postAstro', "Astro", SunValue, "Choice", choice, msg);
+				var ID = setInterval(function() {
+					adresseCounts = 'http://' + Uhren[j] + '/postCounts';
+					adresse = 'http://' + Uhren[j] + '/postAstro';
+					if (Uhren[j] != "0.0.0.0" && Uhren[j] != hostIP) {
+						fetch(adresseCounts, {
+							method: 'post',
+							body: formData
+						})
+						.then(resp => {
+							if (resp.ok) {
+								postFetch(adresse, "Astro", SunValue, "Choice", choice, msg);
+							}
+						})
+						.catch(err => {
+							showbox.className = "configred";
+							showbox.innerHTML = msg + " nicht auf allen Uhren gesetzt!<br>Siehe Cockpit";
+						});					
+					} else {
+						counter++;
+						if (counter == Uhren.length) showSuccess(msg);	
+					}
+					j++;
+					if (j == Uhren.length){
+						clearInterval(ID);
+					}
+				},200);
+			}
+		}
+		
+		function eggStopper() {
+			var adresse;
+			var j=0;
+			var msg = "Countdown-Stop";
+			counter = -1;
+			if (countdownActive == true){
+				var check = confirm('Countdown auf ALLEN Uhren stoppen?');
+				if (check == true){
+				postFetch(host+'/eggStart', "EggStop", "Stop", "none", "none", msg);
+					var ID = setInterval(function() {
+						adresse = 'http://' + Uhren[j] + '/eggStart';
+						if (Uhren[j] != "0.0.0.0" && Uhren[j] != hostIP) {
+							postFetch(adresse, "EggStop", "Stop", "none", "none", msg);
+						} else {
+							counter++;
+							if (counter == Uhren.length) showSuccess(msg);	
+						}
+						j++;
+						if (j == Uhren.length){
+						clearInterval(ID);
+						}
+						},200);
+				}
+			}
+		}
+						
+		function postFetch(adresse, name1, data1, name2, data2, msg){
+			showbox.className = "configorange";
+			showbox.innerHTML = "Speichervorgang läuft";
+			let formData = new FormData();
+			formData.append(name1, data1);
+			formData.append(name2, data2);
+			fetch(adresse, {
+			method: 'post',
+			body: formData
+			})
+			.then(resp => {
+			if (resp.ok) {
+				counter++;
+				if (counter == Uhren.length) showSuccess(msg);
+			}
+			})
+			.catch(err => {
+				showbox.className = "configred";
+				showbox.innerHTML = msg + " nicht auf allen Uhren gesetzt!<br>Siehe Cockpit";
+			});					
+		}
+		
+		function showSuccess(msg){
+					showbox.className = "configgreen";
+					showbox.innerHTML = msg + " auf allen Uhren gesetzt!";
+					setTimeout (function(){
+						showbox.className = "configinvisible";
+						showbox.innerHTML = "&nbsp;";			
+					 },5000);
+			}		
+</SCRIPT>
+</head>
+<body>
+<div>
+<div class="aussen">
+<h1><nobr>Tobers Zeitschaltuhr</nobr></h1>
+<h2 style="margin-bottom:0em;" id="device">Spezial für alle Uhren</h2><br>
+<h2>Dämmerungsschalter</h2>
+<div class="astroInfo">
+<div style="text-align:center; font-weight:bold; margin:0 0 0.2em 0;">&#9728;&#65039; &nbsp; Daten von heute: <span id="today"></span> &nbsp;	&#127768;</div>
+Dämmerung: <span id="dawn"></span> h<div style="float:right; margin-right: 0.2em;">Sonnenaufgang: <span id="rise"></span> h</div><br>
+Sonnenuntergang: <span id="set"></span> h<div style="float:right; margin-right: 0.2em;">Dämmerung: <span id="dusk"></span> h</div>
+</div>
+<main>
+</main>
+<div id="showbox" class="configinvisible" style="margin-top:1.2em;">&nbsp;</div>
+<h2 style="margin-top:0.8em;">Countdown-Timer</h2>
+<p>
+<div class="config" style="height:4em;">
+<div style="float:left; width:3em; height:4em;">
+		<svg viewBox="0 0 12 15">
+          <polygon id="color" points="10.421,6.754 6.498,6.75 12.058,2.357 9.734,2.357 1.687,8.436 5.584,8.436 0,14.02" />
+        </svg>
+</div>
+<div id="countdown" style="font-size:150%; text-align:center; margin-top:0.2em; margin-left: 1em; width:5em; padding:0.5em; float:left;" class="configright">
+</div>
+<FORM id="stopForm" METHOD="POST" action="/eggStart" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">
+<input type="button" style="margin-top:1em; width:6em;" onclick="eggStopper()" class="configknopf" value="Stop">
+<input type="hidden" id="EggStop" name="EggStop" value="Stop">
+</form>
+</div>
+
+<FORM id="cntForm" METHOD="POST" action="/eggStart" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">
+<div class="config">
+<div style="display:inline-block;">
+<input type="button" onclick="startEggTimer()" class="configknopf" value="Ein für">
+</div>
+<input id="hours" class="innerproform" style="width:2.5em; margin-left:0.8em;" type="number" name="h" min="0" max="99" value="">
+<div style="display: inline-block; margin-left:0.1em;" class="configright">
+h</div>
+<input id="minutes" class="innerproform" style="width:2.5em;" type="number" name="min" min="0" max="60" value="">
+<div style="display: inline-block; margin-left:0.1em;" class="configright">
+min
+</div>
+<input type="hidden" id="EggTime" name="EggTime" value="">
+</div>
+</form>
+
+<div>
+<div class="promenu"><a class="prolink" href="master-cockpit.html">Master<br>Cockpit</a></div>
+<div class="promenu"><a class="prolink" href="master-main-switch.html">Master<br>Schaltuhr</a></div>
+<div class="promenu">Master<br>Spezial</div>
+<div class="promenu"><a class="prolink" href="master-client-admin.html">Master<br>Clients</a></div>
+</div>
+</p>
+</div>
+</div>
+<iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+</body>
+</html>
