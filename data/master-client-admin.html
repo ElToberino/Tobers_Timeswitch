@@ -1,0 +1,308 @@
+<!-- Tobers Timeswitch by ElToberino (c) 2021 for further information see: https://github.com/ElToberino/Tobers_Timeswitch -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Cache-control" content="no-cache">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Master-Client Admin</title>
+  <STYLE>	
+.innerproform {
+	margin-left:1em;
+	margin-right:0.8em;
+	width:9em;
+}
+  </STYLE>
+  <SCRIPT>
+		var host = "";  		// IP of reference device; leave blank unless this site is located external.
+							    //  -> Example: define host = http://192.168.2.115", if this site is not hosted on a time switch device and your reference device has the IP 192.168.2.115
+		var hostIP;
+		var Uhren;
+        var slots = [];
+		var maxSize;
+		var counter;
+        window.addEventListener('load', () => {
+		getIPs(1);
+		 })
+		 
+		 function dom() {
+        var buf = '<FORM id="form_IPs" METHOD="POST" action="' + host + '/postIPs" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">';
+		for (var i = 0; i < Uhren.length; i++) {
+		  buf += '<div id="Slot_' + i + '"  class="config">';
+		  buf += '<div style="display:inline-block;">';
+          buf += '<input type="button" id="Link_' + i + '" onclick="OpenLink(' + i + ')" class="configknopf" value="xxx">';
+		  buf += '</div>';
+		  buf += '<input id="IP_' + i + '" class="innerproform" type="text" name="newIP_' + i + '" maxlength="21" value=""><span onclick="hide(' + i + ')" style="cursor:pointer;">&#10060;</span>';
+		  buf += '</div>';
+		  buf += '<div id="Infobox_' + i + '" style="text-align:center;"></div>';
+		  }
+		buf += '<div class="config" id="addHint"><input type="button" onclick="addField()" class="configknopf" style="margin-right:1.5em;" value="Add">Add new client</div>';
+		buf += '<div id="InfoButt" class="red" style="text-align:center; display:none; padding:0.2em; margin-bottom:0em;">Reached max number of clients</div>';
+		buf += '<div style="text-align:center;"><input type="button" onclick="trick()" class="configknopf" style="margin-top:1em;" value="Save"></div>';
+		buf += '</form>';
+        document.querySelector('main').insertAdjacentHTML('beforeend', buf);
+      }
+		 		
+		function trick(){                                               					// validates input and calls submit function
+			toberREGEX = /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b/;			// IP Address only -> see Simulator at https://www.regextester.com/97777
+			var falseflag;
+			for (var t=0; t<Uhren.length; t++){
+				if (document.getElementById("IP_"+t).value == "") document.getElementById("IP_"+t).value = "0.0.0.0";
+				var check = document.getElementById("IP_"+t).value;
+				var result = toberREGEX.test(check);
+				if (result==false) falseflag=true;
+				}
+				if (falseflag==true){
+					document.getElementById("device").innerHTML = "Only IP addresses allowed";
+					document.getElementById("device").className = "red";
+					document.getElementById("device").style.marginBottom = "-0.5em";
+					document.getElementById("device").style.marginTop = "0.5em";
+				}else { 
+					SendeFunction();
+				}
+			}				
+						
+		function OpenLink(i) {
+		    var adresse = "http://" + Uhren[i];
+			if (Uhren[i] != "0.0.0.0") {
+				window.open(adresse);
+			}
+		}
+				
+		function getIPs(startup) {
+			var adresse = host + "/showClients";
+			fetch(adresse)
+			.then(response => {
+				return response.json()
+				})
+				.then(data => {
+				Uhren = data.IPs;
+				if (startup == 1) {
+					dom();
+					slots.length=Uhren.length;
+					once();
+					hostIP = data.HOST;
+				}
+				for (i=0; i< Uhren.length; i++){
+					var box = "Infobox_" + i;
+					document.getElementById(box).style.display = "none";
+					document.getElementById("IP_"+i).value = Uhren[i];
+					if (Uhren[i] != "0.0.0.0") {
+						loadName(i);
+					} else {
+						slots[i]="1";
+						document.getElementById("Slot_"+i).style.display = "none"; 
+					}				 
+				}
+				console.log(data)
+			})
+			.catch(err => {
+				document.getElementById("device").innerHTML = "No connection to master timeswitch!";
+			    document.getElementById("device").className = "red";
+				document.getElementById("device").style.marginBottom = "-0.5em";
+				document.getElementById("device").style.marginTop = "0.5em";
+				})		
+		}
+	  	    
+	  function loadName(position) {
+		 var adresse = "http://" + Uhren[position] + "/showname";
+		 var hallo = "Link_"+ position;
+		 var box = "Infobox_" + position;
+		 var daten;
+          fetch(adresse)
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				daten=data.No1;
+				console.log(data)
+				}).
+				then ( function(){
+				document.getElementById(hallo).value = daten;
+				})
+			.catch(err => {
+				if (Uhren[position] != "0.0.0.0"){																		 	// verhindert Anzeige einer noch im Aufruf befindlichen Anfrage,
+					document.getElementById(box).innerHTML = "No connection to client<br>with IP: " + Uhren[position];  	//  die in der Zwischenzeit gelöscht wurde
+					document.getElementById(box).style.display = "";
+					document.getElementById(box).style.padding = "0.4em";
+					document.getElementById(box).style.marginBottom = "1.5em";
+					document.getElementById(box).style.marginTop = "-0.5em";
+					document.getElementById(box).className = "red";
+				}
+			})	 
+		}
+	
+		function addField() {
+			for (var i=0; i < slots.length; i++){
+				if (slots[i] == "1"){
+					document.getElementById("Slot_"+i).style.display = ""; 
+					slots[i]="0";
+					return;
+				}
+			}
+			if (i==slots.length) {
+			document.getElementById("InfoButt").style.display = "";
+			setTimeout(function(){
+				document.getElementById("InfoButt").style.display = "none";
+			},3000);
+			}
+		}
+				
+		function hide(position) {
+			document.getElementById("Slot_" + position).style.display = "none";
+			document.getElementById("IP_" + position).value = "0.0.0.0";
+		}
+					
+		function once() {
+	        fetch('/showConfig')
+			  .then(response => {
+				return response.json()
+				})
+              .then(data => {
+				document.getElementById("zwo").value = data.CNT;
+				maxSize = data.MaxS;
+				document.getElementById("zwo").max = maxSize;
+				console.log(data)
+				})
+			.catch(err => {
+                document.getElementById("device").innerHTML = "No connection to master timeswitch";
+			    document.getElementById("device").className = "configred";
+				})
+		}
+		
+		function SendeFunction() {
+			var t=0;
+			counter = -1;
+			var msg = "Clients";
+			var check = confirm('Really set list of clients on ALL timeswitches?');
+			if (check == true){
+				for (t=0; t<Uhren.length; t++){
+					Uhren[t] = document.getElementById("IP_"+t).value;
+				}
+				var formular = new FormData(document.getElementById("form_IPs"));
+				postFetch(host+'/postIPs', formular, msg, "device0");
+				var adresse;
+				var j=0;
+				var ID = setInterval(function() {
+					adresse = 'http://' + Uhren[j] + '/postIPs';
+					if (Uhren[j] != "0.0.0.0" && Uhren[j] != hostIP) {
+						postFetch(adresse, formular, msg, "device0");
+					} else {
+						counter++;
+						if (counter == Uhren.length) showSuccess(msg, "device0");	
+					}
+					j++;
+					if (j==Uhren.length){
+						clearInterval(ID);
+						//setTimeout(getIPs,100);
+					}
+				},100);	
+			}
+		}
+		
+				
+		function SendCounts() {
+			var numOfCounts = Number(document.getElementById("zwo").value);
+			counter = -1;
+			var msg = "Number of times";
+			var adresse;
+			var j=0;
+			if (numOfCounts >= 1 && numOfCounts <= maxSize) {
+				var check = confirm('Really set number of times on ALL timeswitches?');
+				if (check == true){
+					let formData = new FormData();
+					formData.append("CNT", numOfCounts);
+					formData.append("SAVER", "1");
+					postFetch(host+'/postCounts', formData, msg, "device1");
+					var ID = setInterval(function() {
+						adresse = 'http://' + Uhren[j] + '/postCounts';
+						if (Uhren[j] != "0.0.0.0" && Uhren[j] != hostIP) {
+							postFetch(adresse, formData, msg, "device1");
+						} else {
+							counter++;
+							if (counter == Uhren.length) showSuccess(msg, "device1");	
+						}
+						j++;
+						if (j==Uhren.length){
+							clearInterval(ID);
+						//setTimeout(once,100);
+						}
+					},100);
+				}
+			} else { 
+				document.getElementById("device1").innerHTML = "Only input between 1 and " + maxSize + " allowed";
+				document.getElementById("device1").className = "configred";
+				setTimeout(once,100);
+		   }				
+		}
+		
+		function postFetch(adresse, arg, msg, pos){
+			document.getElementById(pos).className = "configorange";
+			document.getElementById(pos).innerHTML = "Saving";
+			fetch(adresse, {
+			method: 'post',
+			body: arg
+			})
+			.then(resp => {
+			if (resp.ok) {
+				counter++;
+				if (counter == Uhren.length) showSuccess(msg, pos);
+			}
+			})
+			.catch(err => {
+				document.getElementById(pos).className = "configred";
+				document.getElementById(pos).innerHTML = msg + " not set on all timeswitches!<br>See cockpit";
+				if (msg == "Number of times") setTimeout(once,100);
+				if (msg == "Clients") setTimeout(getIPs,100);
+			});					
+		}
+		
+		function showSuccess(msg, pos){
+					document.getElementById(pos).className = "configgreen";
+					document.getElementById(pos).innerHTML = msg + " set on all timeswitches!";
+					setTimeout (function(){
+						document.getElementById(pos).className = "configinvisible";
+						document.getElementById(pos).innerHTML = "&nbsp;";
+					 },5000);
+					if (msg == "Number of times") setTimeout(once,100);
+					//if (msg == "Clients") setTimeout(getIPs,100);
+					if (msg == "Clients") setTimeout(function(){
+							window.location = window.location.href;
+							},1000);
+			}
+</SCRIPT>
+</head>
+<body>
+<div>
+<div class="aussen">
+<h1><nobr>Tobers Timeswitch</nobr></h1>
+<h2>Master-Client Admin</h2>
+<div id="device" class="configinvisible" style="margin:0.5em 0 -0.5em 0;">&nbsp</div>
+<main>
+</main>
+<div id="device0" class="configinvisible" style="margin-top:1.1em;">&nbsp;</div>
+<h2 style="margin-top:1.1em;">Number of switching times</h2>
+<FORM id="formuZwo" METHOD="POST" action="/postCounts" target="hiddenFrame" style="margin:0; padding:0; text-align:left; width:100%;">
+<div class="config">
+<div style="display:inline-block;">
+<input type="button" onclick="SendCounts()" class="configknopf" value="Set Number">
+</div>
+<input id="zwo" class="innerproform" style="width:3.5em;" type="number" name="CNT" min="1" max="" value="">
+<div style="display: inline-block;" class="configright">
+Times
+</div>
+</div>
+</form>
+<div id="device1" class="configinvisible">&nbsp;</div>
+<div style="margin-top:1em;">
+<div class="promenu"><a class="prolink" href="master-cockpit.html">Master<br>Cockpit</a></div>
+<div class="promenu"><a class="prolink" href="master-main-switch.html">Master<br>Timeswitch</a></div>
+<div class="promenu"><a class="prolink" href="master-advanced.html">Master<br>Advanced</a></div>
+<div class="promenu">Master<br>Clients</div>
+</div>
+</div>
+</div>
+<iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+</body>
+</html>
